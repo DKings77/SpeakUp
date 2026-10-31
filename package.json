@@ -1,0 +1,21 @@
+{
+  "name": "speak-up",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Speak Up: app personal para aprender inglés hablando (A1 → B2)",
+  "scripts": {
+    "serve": "npx --yes serve public",
+    "ios:add": "cap add ios --packagemanager CocoaPods",
+    "ios:sync": "cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor-community/speech-recognition": "7.0.1",
+    "@capacitor-community/text-to-speech": "8.0.2",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/ios": "8.6.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "4.0.0",
+    "@capacitor/cli": "8.6.0"
+  }
+}

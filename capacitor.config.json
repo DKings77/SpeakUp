@@ -1,0 +1,9 @@
+{
+  "appId": "com.davidreyes.speakup",
+  "appName": "Speak Up",
+  "webDir": "public",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#f6f7f5"
+  }
+}

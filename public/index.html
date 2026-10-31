@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Speak Up</title>
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Speak Up">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ======================= LOGIN ======================= -->
+<section id="screen-login" class="screen" hidden>
+  <div class="center-box">
+    <div class="logo">🎙️</div>
+    <h1>Speak Up</h1>
+    <p class="muted">Tu camino al B2, hablando</p>
+    <form id="login-form" class="stack">
+      <input id="login-email" type="email" placeholder="Email" autocomplete="username" required>
+      <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+      <button class="btn primary" type="submit">Entrar</button>
+      <p id="login-error" class="error" hidden></p>
+    </form>
+  </div>
+</section>
+
+<!-- ======================= HOY ======================= -->
+<section id="screen-today" class="screen tabbed" hidden>
+  <header class="topbar">
+    <div><h1 id="today-hello">Hola, David</h1><small class="muted" id="today-date"></small></div>
+    <button class="icon-btn" data-go="settings" aria-label="Ajustes">⚙️</button>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><span id="stat-streak">0</span><small>🔥 racha</small></div>
+    <div class="stat"><span id="stat-minutes">0</span><small>⏱️ minutos</small></div>
+    <div class="stat"><span id="stat-due">0</span><small>🔁 por repasar</small></div>
+  </div>
+
+  <div class="card">
+    <h2>📅 Tu plan de hoy · 30 min</h2>
+    <div id="plan-list" class="plan"></div>
+  </div>
+
+  <div class="card clickable" id="card-continue">
+    <small class="muted">Continúa el curso</small>
+    <h2 id="continue-title">—</h2>
+    <div class="progress"><div id="b2-bar" class="progress-fill"></div></div>
+    <small class="muted" id="b2-text">0 de 60 unidades hacia el B2</small>
+  </div>
+</section>
+
+<!-- ======================= CURSO ======================= -->
+<section id="screen-course" class="screen tabbed" hidden>
+  <header class="topbar"><h1>📚 Curso A1 → B2</h1></header>
+  <div id="course-list"></div>
+</section>
+
+<!-- ======================= LECCIÓN ======================= -->
+<section id="screen-lesson" class="screen lesson" hidden>
+  <header class="topbar">
+    <button class="btn small" id="lesson-back">✕</button>
+    <div class="talk-title"><strong id="lesson-title">—</strong><small id="lesson-unit"></small></div>
+    <span style="width:40px"></span>
+  </header>
+  <nav id="lesson-steps" class="steps"></nav>
+  <div id="lesson-body" class="lesson-body"></div>
+  <footer class="lesson-footer">
+    <button class="btn" id="lesson-prev">← Atrás</button>
+    <button class="btn primary" id="lesson-next">Siguiente →</button>
+  </footer>
+</section>
+
+<!-- ======================= ESCUCHAR ======================= -->
+<section id="screen-listen" class="screen tabbed" hidden>
+  <header class="topbar"><h1>🎧 Escuchar y responder</h1></header>
+  <div class="card stack">
+    <p class="muted">Escucha un audio a tu nivel, responde hablando y entrena el oído.</p>
+    <label>Nivel
+      <select id="listen-level">
+        <option value="A1">A1 · muy lento y sencillo</option>
+        <option value="A2">A2 · frases cortas</option>
+        <option value="B1">B1 · conversación normal</option>
+        <option value="B2">B2 · natural, como nativos</option>
+      </select>
+    </label>
+    <div>
+      <small class="muted">Tema</small>
+      <div class="chips" id="listen-topics"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>🕘 Últimos ejercicios</h2>
+    <div id="listen-history"><p class="muted">Todavía ninguno.</p></div>
+  </div>
+</section>
+
+<!-- ======================= EJERCICIO DE ESCUCHA ======================= -->
+<section id="screen-listenex" class="screen lesson" hidden>
+  <header class="topbar">
+    <button class="btn small" id="lx-back">✕</button>
+    <div class="talk-title"><strong id="lx-title">—</strong><small id="lx-level"></small></div>
+    <span style="width:40px"></span>
+  </header>
+  <nav id="lx-steps" class="steps"></nav>
+  <div id="lx-body" class="lesson-body"></div>
+  <footer class="lesson-footer">
+    <button class="btn" id="lx-prev">← Atrás</button>
+    <button class="btn primary" id="lx-next">Siguiente →</button>
+  </footer>
+</section>
+
+<!-- ======================= HABLAR (inicio) ======================= -->
+<section id="screen-talkhome" class="screen tabbed" hidden>
+  <header class="topbar"><h1>🗣️ Hablar con Sam</h1></header>
+
+  <div class="card clickable" id="card-practice-unit">
+    <h2>🎯 Practicar la unidad actual</h2>
+    <p class="muted" id="practice-unit-text">Sam te hará preguntas para usar la gramática que estás estudiando.</p>
+  </div>
+
+  <div class="card">
+    <h2>⭐ Mis temas</h2>
+    <p class="muted">Temas tuyos: de lo que quieras hablar.</p>
+    <div class="chips" id="topics-custom"></div>
+    <form id="custom-topic-form" class="type-form" style="margin-top:10px">
+      <input id="custom-topic-input" type="text" placeholder="Ej.: mi nueva moto, el Ironman de Barcelona…" maxlength="120">
+      <button class="btn small" type="submit">Añadir</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>💬 Conversación libre</h2>
+    <div class="chips" id="topics-freetalk"></div>
+  </div>
+
+  <div class="card">
+    <h2>🎭 Role-play</h2>
+    <div class="chips" id="topics-roleplay"></div>
+  </div>
+</section>
+
+<!-- ======================= CONVERSACIÓN ======================= -->
+<section id="screen-talk" class="screen talk" hidden>
+  <header class="topbar">
+    <button class="btn small" id="btn-end">Terminar</button>
+    <div class="talk-title"><strong id="talk-topic">—</strong><small id="talk-timer">00:00</small></div>
+    <button class="icon-btn" id="btn-toggle-text" aria-label="Mostrar/ocultar texto del tutor">👁️</button>
+  </header>
+  <div id="chat" class="chat" aria-live="polite"></div>
+  <footer class="talk-controls">
+    <div id="live-text" class="live-text" hidden></div>
+    <form id="type-form" class="type-form" hidden>
+      <input id="type-input" type="text" placeholder="Escribe en inglés…" autocomplete="off">
+      <button class="btn primary small" type="submit">Enviar</button>
+    </form>
+    <div class="controls-row">
+      <button class="btn ghost" id="btn-dontknow">🤷 No sé</button>
+      <button id="btn-talk" class="talk-btn" aria-label="Mantén pulsado para hablar"><span>🎤</span></button>
+      <button class="btn ghost" id="btn-keyboard" aria-label="Escribir">⌨️</button>
+    </div>
+    <p id="talk-status" class="talk-status">Mantén pulsado para hablar</p>
+  </footer>
+</section>
+
+<!-- ======================= RESUMEN ======================= -->
+<section id="screen-summary" class="screen" hidden>
+  <header class="topbar"><h1>Resumen</h1></header>
+  <div class="stats">
+    <div class="stat"><span id="sum-minutes">0</span><small>minutos</small></div>
+    <div class="stat"><span id="sum-turns">0</span><small>turnos</small></div>
+    <div class="stat"><span id="sum-streak">0</span><small>🔥 racha</small></div>
+  </div>
+  <div class="card"><h2>📋 Tus correcciones</h2><div id="sum-corrections"></div></div>
+  <div class="card"><h2>📚 Vocabulario nuevo</h2><div id="sum-vocab"></div></div>
+  <button class="btn primary block" data-go="talkhome">Volver</button>
+</section>
+
+<!-- ======================= REPASO ======================= -->
+<section id="screen-review" class="screen tabbed" hidden>
+  <header class="topbar">
+    <h1>🔁 Repaso</h1>
+    <span id="review-count" class="muted"></span>
+  </header>
+  <div id="review-area"></div>
+</section>
+
+<!-- ======================= AJUSTES ======================= -->
+<section id="screen-settings" class="screen" hidden>
+  <header class="topbar">
+    <button class="btn small" data-go="today">← Volver</button>
+    <h1>Ajustes</h1>
+    <span></span>
+  </header>
+  <form id="settings-form" class="card stack">
+    <label>Nivel de Sam en la conversación
+      <select id="set-level">
+        <option>A1</option><option>A1+</option><option>A2</option><option>A2+</option>
+        <option>B1</option><option>B1+</option><option>B2</option>
+      </select>
+    </label>
+    <label>Velocidad de voz: <strong id="set-rate-val">0.8</strong>
+      <input id="set-rate" type="range" min="0.5" max="1.2" step="0.05">
+    </label>
+    <label>Voz de Sam
+      <select id="set-voice"></select>
+    </label>
+    <button type="button" class="btn" id="btn-test-voice">🔊 Probar voz</button>
+    <label>Reconocimiento de voz
+      <select id="set-stt">
+        <option value="auto">Automático (iPhone nativo / navegador en PC)</option>
+        <option value="webspeech">Navegador (gratis, Chrome/Edge)</option>
+        <option value="whisper">Whisper (de pago, más literal)</option>
+      </select>
+    </label>
+    <label>Español de apoyo
+      <select id="set-spanish">
+        <option value="2">Cuando me bloqueo</option>
+        <option value="1">Muy poco</option>
+        <option value="0">Nada (solo en correcciones)</option>
+      </select>
+    </label>
+    <label>Glosario (nombres que uso, separados por comas)
+      <textarea id="set-glossary" rows="3"></textarea>
+    </label>
+    <button class="btn primary" type="submit">Guardar</button>
+    <p id="settings-msg" class="muted" hidden></p>
+  </form>
+  <button class="btn ghost block" id="btn-logout">Cerrar sesión</button>
+</section>
+
+<!-- ======================= BARRA DE PESTAÑAS ======================= -->
+<nav id="tabbar" class="tabbar" hidden>
+  <button data-tab="today"><span>🏠</span>Hoy</button>
+  <button data-tab="course"><span>📚</span>Curso</button>
+  <button data-tab="listen"><span>🎧</span>Escuchar</button>
+  <button data-tab="talkhome"><span>🗣️</span>Hablar</button>
+  <button data-tab="review"><span>🔁</span>Repaso</button>
+</nav>
+
+<div id="loading" class="loading" hidden><div class="spinner"></div><p id="loading-text">Cargando…</p></div>
+<div id="toast" class="toast" hidden></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

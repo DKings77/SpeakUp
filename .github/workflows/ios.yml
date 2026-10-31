@@ -1,0 +1,92 @@
+# =====================================================================
+# Compila la app de iPhone SIN FIRMAR (.ipa) para instalarla con Sideloadly.
+# Se lanza sola al hacer push a main (si cambia la app) o a mano desde
+# GitHub → Actions → "iOS IPA (Sideloadly)" → Run workflow.
+# Descarga: entra en la ejecución → Artifacts → SpeakUp-ipa (zip con el .ipa).
+# =====================================================================
+name: iOS IPA (Sideloadly)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "public/**"
+      - "assets/**"
+      - "package.json"
+      - "package-lock.json"
+      - "capacitor.config.json"
+      - ".github/workflows/ios.yml"
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Comprobar config.js
+        run: |
+          if grep -q "TU-PROYECTO" public/js/config.js; then
+            echo "::error::Rellena public/js/config.js con la URL y la clave publishable de Supabase antes de compilar"
+            exit 1
+          fi
+
+      - name: Crear proyecto iOS (Capacitor)
+        run: npx cap add ios --packagemanager CocoaPods
+
+      - name: Iconos y pantalla de inicio
+        run: npx capacitor-assets generate --ios
+
+      - name: Permisos y versión (Info.plist)
+        run: |
+          PL=ios/App/App/Info.plist
+          set_key () {
+            /usr/libexec/PlistBuddy -c "Set :$1 '$3'" "$PL" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :$1 $2 '$3'" "$PL"
+          }
+          set_key NSMicrophoneUsageDescription string "Speak Up usa el micrófono para que practiques hablando en inglés."
+          set_key NSSpeechRecognitionUsageDescription string "Speak Up convierte tu voz en texto para corregir tu inglés."
+          set_key CFBundleDisplayName string "Speak Up"
+          set_key CFBundleShortVersionString string "2.0.${GITHUB_RUN_NUMBER}"
+          set_key CFBundleVersion string "${GITHUB_RUN_NUMBER}"
+          /usr/libexec/PlistBuddy -c "Print" "$PL" | grep -E "Usage|Version|DisplayName"
+
+      - name: Sincronizar plugins
+        run: npx cap sync ios
+
+      - name: Compilar (sin firmar)
+        run: |
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            -quiet build
+
+      - name: Empaquetar .ipa
+        run: |
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/App.app Payload/
+          zip -qry SpeakUp.ipa Payload
+          ls -lh SpeakUp.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SpeakUp-ipa
+          path: SpeakUp.ipa
+          retention-days: 30
