@@ -3,8 +3,8 @@
 // la seguridad la dan el login + RLS). La API key de Claude NO va aquí.
 // Rellénalas con: Supabase → Project Settings → API.
 // =====================================================================
-export const SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
-export const SUPABASE_ANON_KEY = "TU-ANON-O-PUBLISHABLE-KEY";
+export const SUPABASE_URL = "https://mfbmcawoalpsltybrmvw.supabase.co";
+export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1mYm1jYXdvYWxwc2x0eWJybXZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0Nzg4MzAsImV4cCI6MjEwOTA1NDgzMH0.iNiCz1jR2ECE7dHNGW3Ub90VvyYeGRZtnN0ID-EpFP4";
 
 export const FREETALK_TOPICS = [
   { id: "my job in IT: servers, backups and incidents", label: "💻 Mi trabajo IT" },
