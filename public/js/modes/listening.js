@@ -10,7 +10,7 @@ import { micState } from "./course.js";
 import * as api from "../tutor.js";
 
 const STEPS = ["Escuchar", "Preguntas", "Dictado", "Texto"];
-const LEVEL_RATE = { A1: 0.7, A2: 0.8, B1: 0.9, B2: 1.0 };
+const LEVEL_RATE = { A1: 0.7, A2: 0.8, B1: 0.9, B2: 1.0, C1: 1.05, C2: 1.1 };
 export const LISTEN_TOPICS = [
   { id: "a random everyday situation", label: "🎲 Sorpresa" },
   { id: "IT work: servers, incidents, support calls, meetings", label: "💻 Trabajo IT" },
@@ -39,7 +39,7 @@ export function initListening({ exit }) {
 }
 
 /** Nivel de escucha sugerido según el nivel del perfil. */
-const suggestedLevel = () => ({ "A1": "A1", "A1+": "A1", "A2": "A2", "A2+": "A2", "B1": "B1", "B1+": "B1", "B2": "B2" }[state.profile?.level] ?? "A1");
+const suggestedLevel = () => ({ "A1": "A1", "A1+": "A1", "A2": "A2", "A2+": "A2", "B1": "B1", "B1+": "B1", "B2": "B2", "C1": "C1", "C2": "C2" }[state.profile?.level] ?? "A1");
 
 export async function renderListenHome() {
   if (!$("#listen-level").dataset.touched) $("#listen-level").value = suggestedLevel();

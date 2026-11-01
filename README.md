@@ -1,6 +1,6 @@
 # Speak Up 🎙️ · v2
 
-App personal para aprender inglés **hablando**, de A1 a B2, con un tutor de IA ("Sam").
+App personal para aprender inglés **hablando**, de A1 a C2, con un tutor de IA ("Sam").
 Funciona como **app de iPhone** (Capacitor, instalada con Sideloadly) y como **web en el PC**.
 
 ## Apartados
@@ -8,7 +8,7 @@ Funciona como **app de iPhone** (Capacitor, instalada con Sideloadly) y como **w
 | Pestaña | Qué hace |
 |---|---|
 | 🏠 **Hoy** | Plan diario de 30 min: repaso (5) → lección (10) → escucha (8) → hablar (7). Racha, minutos y progreso hacia el B2. |
-| 📚 **Curso** | 56 unidades + 4 exámenes de nivel (A1, A2, B1, B2). Cada unidad: explicación en español → vocabulario → pronunciación → frases para decir en inglés → test (aprobado ≥70%). |
+| 📚 **Curso** | 84 unidades + 6 exámenes de nivel (A1 → C2). Cada unidad: explicación en español → vocabulario → pronunciación → frases para decir en inglés → test (aprobado ≥70%). |
 | 🎧 **Escuchar** | Audio generado a tu nivel (diálogo o monólogo). Lo escuchas sin texto, respondes **hablando**, haces un dictado y al final ves la transcripción. |
 | 🗣️ **Hablar** | Conversación con Sam que te corrige: practicar la unidad actual, **Mis temas** (los tuyos), temas libres y role-plays. |
 | 🔁 **Repaso** | Tarjetas con repetición espaciada de tus errores y vocabulario (sin IA, coste 0). |

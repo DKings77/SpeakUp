@@ -1,5 +1,5 @@
 // =====================================================================
-// Temario Speak Up · A1 → B2
+// Temario Speak Up · A1 → C2
 // Progresión basada en el MCER (CEFR) y en los temarios habituales de
 // cursos generales (tipo English File / Cambridge), adaptada a David:
 // IT, trabajo, triatlón, familia y viajes.
@@ -23,6 +23,8 @@ export const LEVELS = [
   { id: "A2", name: "A2 · Elemental", goal: "Contar lo que hiciste, tus planes y resolver situaciones de viaje y trabajo sencillas." },
   { id: "B1", name: "B1 · Intermedio", goal: "Hablar de tu experiencia, dar opiniones y explicar procesos de trabajo." },
   { id: "B2", name: "B2 · Intermedio alto", goal: "Participar en reuniones, argumentar, negociar y conversar con fluidez." },
+  { id: "C1", name: "C1 · Avanzado", goal: "Expresarte con matices, sonar natural, liderar reuniones y entender a nativos sin esfuerzo." },
+  { id: "C2", name: "C2 · Maestría", goal: "El nivel más alto: precisión casi nativa, humor, ironía y cualquier registro." },
 ];
 
 export const UNITS = [
@@ -93,6 +95,40 @@ export const UNITS = [
   u("b2-15", "Presentaciones técnicas", "signposting (firstly, moving on, to sum up); describing graphs and trends", "presentations, data, trends", "present a technical report", "intonation in lists"),
   u("b2-16", "Conversación fluida", "interrupting politely, turn-taking, common idioms and expressions", "discussion, everyday idioms", "keep a 5-minute discussion going", "rhythm and connected speech"),
   exam("B2", "Examen de nivel B2"),
+
+  // ---------------- C1 ----------------
+  u("c1-01", "Matices de los tiempos verbales", "nuances of tenses: future in the past (was going to, was about to), present perfect simple vs continuous for emphasis, narrative present", "career, life events", "tell experiences with nuance and precision", "weak forms in complex verb phrases"),
+  u("c1-02", "Inversión y énfasis", "inversion after negative adverbials (Rarely, Under no circumstances, Little did I know, Not until); fronting", "formal speech, presentations", "add emphasis when presenting an idea", "stress and rhythm in inverted sentences"),
+  u("c1-03", "Condicionales avanzados", "inverted conditionals (Had I known, Should you need, Were it not for); provided that, as long as, supposing, otherwise", "contracts, negotiation", "negotiate conditions with a supplier", "intonation in conditional clauses"),
+  u("c1-04", "Modales para criticar y lamentar", "should have / needn't have / could have; will/would for habits and assumptions; be bound to, be likely to", "decisions, evaluation", "evaluate past decisions with tact", "contracted modal perfects: should've, needn't've"),
+  u("c1-05", "Pasiva impersonal y estilo de noticia", "impersonal passive (It is thought that..., He is believed to have...); get-passive; passive infinitives and gerunds", "news, reports, rumours", "report information with distance, like the news", "sentence stress in long passives"),
+  u("c1-06", "Registro formal y sustantivación", "nominalisation, formal vs informal register, formal linking (furthermore, consequently, with regard to)", "reports, formal emails", "give a formal report out loud", "word stress shifts: decide/decision, analyse/analysis"),
+  u("c1-07", "Phrasal verbs con varios significados", "phrasal verbs with multiple meanings (pick up, come across, turn out, take on, put across) and idioms at work", "work and everyday idioms", "speak naturally using idiomatic language", "linking in phrasal verbs"),
+  u("c1-08", "Colocaciones avanzadas", "strong collocations: adverb + adjective (heavily dependent, bitterly disappointed), verb + noun (pose a threat, bridge the gap)", "precise vocabulary", "describe situations with precise vocabulary", "chunking collocations"),
+  u("c1-09", "Lenguaje diplomático", "hedging and softening: it would appear, to some extent, arguably, I'm not entirely convinced; diplomatic disagreement", "management, feedback", "give difficult feedback tactfully", "tone and intonation for politeness"),
+  u("c1-10", "Argumentar y rebatir", "concession and counter-argument: admittedly, granted, be that as it may, nonetheless, on the contrary; rhetorical questions", "debate", "defend a position and rebut objections", "intonation in contrast"),
+  u("c1-11", "Cláusulas de participio", "participle clauses (Having finished..., Not knowing...), absolute clauses, reduced adverbial clauses", "processes, technical descriptions", "explain complex processes fluently", "pausing and chunking long sentences"),
+  u("c1-12", "Contar lo que dicen otros con matices", "reporting with nuance: reportedly, allegedly, claimed, insisted, implied; reporting attitudes and opinions", "meetings, news", "summarise and evaluate what others said", "verb stress in reporting"),
+  u("c1-13", "Hipótesis y preferencias", "it's high time, would rather / would sooner, suppose/imagine, as if / as though + unreal past", "future of technology, preferences", "speculate about the future of IT", "weak forms in unreal past"),
+  u("c1-14", "Presentaciones que enganchan", "rhetorical devices: rule of three, signposting, contrast, engaging openings and closings", "presentations, storytelling", "give an engaging 5-minute talk", "pace, pause and emphasis"),
+  u("c1-15", "Negociación avanzada", "persuading, handling objections, conditional offers, bargaining language", "negotiation, sales, support contracts", "negotiate a support contract renewal", "intonation for persuasion"),
+  u("c1-16", "Acentos y habla rápida", "British vs American vs other accents; informal register and slang; understanding fast native speech", "culture, media, accents", "understand and adapt to different accents", "connected speech: elision and assimilation"),
+  exam("C1", "Examen de nivel C1"),
+
+  // ---------------- C2 ----------------
+  u("c2-01", "Precisión gramatical total", "subjunctive (I suggest he be...), were to, mixed time reference; ellipsis and substitution (so, not, do so)", "formal and legal language", "express yourself with total grammatical precision", "rhythm in elliptical speech"),
+  u("c2-02", "Registro, tono e ironía", "shifting register (formal, neutral, colloquial), understatement, irony and tone", "communication styles", "adapt your register to any situation", "intonation for irony and understatement"),
+  u("c2-03", "Modismos y expresiones nativas", "idioms, proverbs, fixed expressions and metaphor", "culture, everyday native speech", "use and understand native idioms naturally", "stress in idiomatic expressions"),
+  u("c2-04", "La palabra exacta", "near-synonyms (reluctant/unwilling, imply/infer), connotation, word formation with prefixes and suffixes", "precise vocabulary", "choose the exact word for each nuance", "word stress across word families"),
+  u("c2-05", "Discurso largo y cohesión", "cohesive devices, referencing, thematisation and information structure", "long talks, explanations", "structure and deliver a long, coherent talk", "prosody across sentences"),
+  u("c2-06", "Humor, ironía y sarcasmo", "understanding and using humour, sarcasm and wordplay", "social conversation", "understand native humour and joke naturally", "intonation and timing in humour"),
+  u("c2-07", "Debate de alto nivel", "persuasion, rebuttal, steelmanning, managing aggressive interlocutors", "debate: AI, privacy, technology", "debate complex topics at a high level", "assertive but polite tone"),
+  u("c2-08", "Explicar lo técnico a cualquiera", "explaining complex technical concepts to non-experts, analogies, precise technical register", "IT architecture, management", "explain an infrastructure project to the board", "clarity at natural speed"),
+  u("c2-09", "Escuchar a nativos sin filtro", "fast speech, overlapping talk, reductions (gonna, wanna, dunno, gotta), regional accents", "podcasts, films, real conversations", "follow real native conversations", "reductions and weak forms"),
+  u("c2-10", "Pragmática y cultura", "politeness strategies, indirectness, cultural references, mastering small talk", "cross-cultural communication", "move comfortably in any social situation", "pragmatic intonation"),
+  u("c2-11", "Mediar y reformular", "paraphrasing, summarising, mediating between people, explaining others' points of view", "meetings, mediation", "summarise and mediate in a discussion", "fluent paraphrasing"),
+  u("c2-12", "Fluidez nativa", "spontaneity, discourse markers (mind you, as it happens, come to think of it), holding long turns", "free discussion", "hold a 10-minute conversation without pauses", "natural rhythm and connected speech"),
+  exam("C2", "Examen de nivel C2"),
 ];
 
 export const UNIT_BY_ID = Object.fromEntries(UNITS.map((x) => [x.id, x]));

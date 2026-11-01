@@ -1,6 +1,6 @@
 // Service worker: guarda la interfaz para que abra rápido.
 // Las llamadas a Supabase / tutor nunca se cachean.
-const VERSION = "speakup-v2";
+const VERSION = "speakup-v3";
 const SHELL = [
   "./", "index.html", "css/styles.css", "manifest.webmanifest",
   "js/app.js", "js/auth.js", "js/config.js", "js/speech.js", "js/tutor.js", "js/ui.js",

@@ -115,9 +115,14 @@ async function renderToday() {
   };
 
   const done = completedCount();
+  const b2Total = UNITS.findIndex((x) => x.id === "b2-exam") + 1;
+  const goalB2 = done < b2Total;
+  const total = goalB2 ? b2Total : UNITS.length;
   $("#continue-title").textContent = `${next.level} · ${next.title}`;
-  $("#b2-bar").style.width = `${Math.round((done / UNITS.length) * 100)}%`;
-  $("#b2-text").textContent = `${done} de ${UNITS.length} unidades hacia el B2`;
+  $("#b2-bar").style.width = `${Math.min(100, Math.round((done / total) * 100))}%`;
+  $("#b2-text").textContent = goalB2
+    ? `${done} de ${b2Total} unidades hacia el B2 · el curso sigue hasta C2`
+    : `${done} de ${UNITS.length} unidades hacia el C2`;
   $("#card-continue").onclick = () => openLesson(next.id);
 }
 

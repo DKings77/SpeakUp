@@ -33,7 +33,16 @@ export const engineLabel = (e) => ({ native: "iPhone (Apple)", webspeech: "naveg
 // RECONOCIMIENTO: interfaz común  start() / stop() → texto / abort()
 // =====================================================================
 
-/** App nativa: plugin @capacitor-community/speech-recognition */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const START_OPTS = { language: "en-US", maxResults: 1, partialResults: true, popup: false };
+
+/**
+ * App nativa: plugin @capacitor-community/speech-recognition
+ * El plugin rechaza start() con "Ongoing speech recognition" si el motor de audio
+ * sigue en marcha (p. ej. si soltaste el botón mientras aún arrancaba). Por eso:
+ *  - stop()/abort() esperan a que termine de arrancar antes de parar,
+ *  - start() comprueba que el motor esté parado y, si no, lo para y reintenta.
+ */
 class NativeListener {
   constructor(onInterim) {
     this.onInterim = onInterim;
@@ -41,30 +50,68 @@ class NativeListener {
     this.text = "";
     this.handle = null;
     this.permOk = false;
+    this.starting = null; // promesa del arranque en curso
   }
-  async start() {
+
+  /** Para el motor si seguía encendido (hasta ~1,5 s). */
+  async ensureIdle() {
+    for (let i = 0; i < 6; i++) {
+      let listening = false;
+      try { listening = (await this.sr.isListening()).listening; } catch { /* ignore */ }
+      if (!listening) return;
+      try { await this.sr.stop(); } catch { /* ignore */ }
+      await sleep(250);
+    }
+  }
+
+  start() {
+    this.starting = this._start();
+    return this.starting;
+  }
+
+  async _start() {
     if (!this.permOk) {
       const p = await this.sr.requestPermissions();
       if (p.speechRecognition !== "granted") throw new Error("Permite el micrófono y el reconocimiento de voz en Ajustes de iOS");
       this.permOk = true;
     }
+    await this.ensureIdle();
     this.text = "";
     await this.handle?.remove?.();
     this.handle = await this.sr.addListener("partialResults", (d) => {
       const t = d?.matches?.[0];
       if (t) { this.text = t; this.onInterim?.(t); }
     });
-    await this.sr.start({ language: "en-US", maxResults: 1, partialResults: true, popup: false });
+    try {
+      await this.sr.start(START_OPTS);
+    } catch (e) {
+      if (!/ongoing/i.test(e?.message ?? "")) throw e;
+      // Seguía encendido: lo paramos y reintentamos una vez
+      try { await this.sr.stop(); } catch { /* ignore */ }
+      await sleep(500);
+      await this.sr.start(START_OPTS);
+    }
   }
+
   async stop() {
+    try { await this.starting; } catch { /* el arranque falló: no hay nada que parar */ }
     try { await this.sr.stop(); } catch { /* ignore */ }
-    await new Promise((r) => setTimeout(r, 700)); // espera el resultado final
+    await sleep(700); // espera el resultado final
     await this.handle?.remove?.();
     this.handle = null;
     return this.text.trim();
   }
-  abort() { this.sr.stop().catch(() => {}); this.handle?.remove?.(); }
-  release() {}
+
+  abort() {
+    (async () => {
+      try { await this.starting; } catch { /* ignore */ }
+      try { await this.sr.stop(); } catch { /* ignore */ }
+      await this.handle?.remove?.();
+      this.handle = null;
+    })();
+  }
+
+  release() { this.abort(); }
 }
 
 /** Navegador: Web Speech API */

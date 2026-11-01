@@ -20,7 +20,7 @@
   <div class="center-box">
     <div class="logo">🎙️</div>
     <h1>Speak Up</h1>
-    <p class="muted">Tu camino al B2, hablando</p>
+    <p class="muted">Tu camino al B2 (y más allá), hablando</p>
     <form id="login-form" class="stack">
       <input id="login-email" type="email" placeholder="Email" autocomplete="username" required>
       <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
@@ -52,13 +52,13 @@
     <small class="muted">Continúa el curso</small>
     <h2 id="continue-title">—</h2>
     <div class="progress"><div id="b2-bar" class="progress-fill"></div></div>
-    <small class="muted" id="b2-text">0 de 60 unidades hacia el B2</small>
+    <small class="muted" id="b2-text"></small>
   </div>
 </section>
 
 <!-- ======================= CURSO ======================= -->
 <section id="screen-course" class="screen tabbed" hidden>
-  <header class="topbar"><h1>📚 Curso A1 → B2</h1></header>
+  <header class="topbar"><h1>📚 Curso A1 → C2</h1></header>
   <div id="course-list"></div>
 </section>
 
@@ -88,6 +88,8 @@
         <option value="A2">A2 · frases cortas</option>
         <option value="B1">B1 · conversación normal</option>
         <option value="B2">B2 · natural, como nativos</option>
+        <option value="C1">C1 · rápido, con modismos</option>
+        <option value="C2">C2 · nativos sin filtro</option>
       </select>
     </label>
     <div>
@@ -202,7 +204,7 @@
     <label>Nivel de Sam en la conversación
       <select id="set-level">
         <option>A1</option><option>A1+</option><option>A2</option><option>A2+</option>
-        <option>B1</option><option>B1+</option><option>B2</option>
+        <option>B1</option><option>B1+</option><option>B2</option><option>C1</option><option>C2</option>
       </select>
     </label>
     <label>Velocidad de voz: <strong id="set-rate-val">0.8</strong>

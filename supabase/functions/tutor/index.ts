@@ -28,7 +28,7 @@ const STT_MODEL = Deno.env.get("STT_MODEL") ?? "whisper-1";
 const HISTORY_LIMIT = 8;
 const MAX_TEXT = 800;
 const MAX_AUDIO_BYTES = 4_000_000;
-const LEVELS = ["A1", "A1+", "A2", "A2+", "B1", "B1+", "B2"];
+const LEVELS = ["A1", "A1+", "A2", "A2+", "B1", "B1+", "B2", "C1", "C2"];
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -211,7 +211,7 @@ async function tutorTurn(sb: SupabaseClient, profile: Any, mode: string, topic: 
 // CURSO
 // =====================================================================
 async function getLesson(sb: SupabaseClient, unit: UnitSpec, regenerate: boolean) {
-  if (!unit?.id || !/^[ab][12]-(\d\d|exam)$/.test(unit.id)) throw new HttpError(400, "Unidad no válida");
+  if (!unit?.id || !/^[abc][12]-(\d\d|exam)$/.test(unit.id)) throw new HttpError(400, "Unidad no válida");
 
   if (!regenerate) {
     const { data: cached } = await sb.from("lessons").select("content").eq("unit_id", unit.id).maybeSingle();
@@ -261,7 +261,7 @@ ${body.grammar ? `Target grammar: ${String(body.grammar).slice(0, 300)}\n` : ""}
 // ESCUCHA
 // =====================================================================
 async function newListening(sb: SupabaseClient, level: string, topic: string) {
-  const lvl = ["A1", "A2", "B1", "B2"].includes(level) ? level : "A2";
+  const lvl = ["A1", "A2", "B1", "B2", "C1", "C2"].includes(level) ? level : "A2";
   const t = topic.slice(0, 200);
   const content = await claude({
     system: [{ type: "text", text: listeningSystem(lvl, t) }],

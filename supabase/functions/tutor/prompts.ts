@@ -47,7 +47,7 @@ The conversation is SPOKEN: his words come from speech-to-text and your "reply" 
 - If he speaks Spanish, understand it, give him the English version as a hint and invite him to say it.
 
 ## Level signal
-- "level_signal": your estimate of the CEFR level shown in THIS turn (A1, A1+, A2, A2+, B1, B1+, B2).
+- "level_signal": your estimate of the CEFR level shown in THIS turn (A1, A1+, A2, A2+, B1, B1+, B2, C1, C2).
 
 Always answer by calling the tool "tutor_turn". Never write anything outside the tool.`;
 
@@ -74,6 +74,12 @@ const LEVEL_RULES: Record<string, string> = {
   "B2": `- Natural, fluent speech as with a colleague. Up to 4 sentences plus the question.
 - Any grammar (third/mixed conditionals, modals of deduction, advanced passive). Use common idioms naturally.
 - Correct also unnatural word choices and collocations, not only grammar errors.`,
+  "C1": `- Natural, fast native speech with idioms, phrasal verbs and nuance. Up to 4 sentences plus the question.
+- Challenge him: ask for opinions, hypotheses and justifications.
+- Correct unnatural collocations, register and word choice; suggest more precise or idiomatic alternatives.`,
+  "C2": `- Speak exactly as an educated native speaker would, including humour, irony and understatement.
+- Push for precision: ask him to rephrase, nuance or defend his ideas.
+- Correct anything that a native speaker would not say, including subtle register and connotation issues.`,
 };
 
 const SPANISH_RULES = [
@@ -190,7 +196,7 @@ export const TUTOR_TOOL = {
           translation_es: { type: "string" },
         },
       },
-      level_signal: { type: "string", enum: ["A1", "A1+", "A2", "A2+", "B1", "B1+", "B2"] },
+      level_signal: { type: "string", enum: ["A1", "A1+", "A2", "A2+", "B1", "B1+", "B2", "C1", "C2"] },
     },
     required: ["reply", "corrections", "corrected_sentence", "praise_es", "new_vocab", "hint", "level_signal"],
   },

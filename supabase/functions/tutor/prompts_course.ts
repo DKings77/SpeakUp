@@ -31,7 +31,7 @@ ${isExam ? `This is the END-OF-LEVEL EXAM for ${u.level}. It reviews ALL the ${u
 - Pronunciation focus: ${u.pron}`}
 
 Rules:
-- Every English example must be natural, correct, and use only ${u.level} (or lower) language, except the target grammar.
+- Every English example must be natural, correct, and appropriate for ${u.level}${["C1","C2"].includes(u.level) ? " (rich, natural, idiomatic English is welcome)" : " (or lower) language, except the target grammar"}.
 - Personalise examples and drills to David's life (IT work, triathlon, family, Mataró, travel). Vary them.
 - "explanation": 2-4 sections. Each body_es: max 4 short sentences in Spanish, can include a simple formula
   like "I + am / he + is". Each section has 2-4 examples with Spanish translation.
@@ -176,6 +176,8 @@ const LISTENING_LENGTH: Record<string, string> = {
   A2: "100-140 words. Short sentences, present and past simple, going to, common words.",
   B1: "150-200 words. Natural sentences, present perfect, conditionals, some phrasal verbs.",
   B2: "220-280 words. Natural, fluent English with idioms and connected ideas, as native speakers talk.",
+  C1: "280-340 words. Fast, natural native speech with idioms, phrasal verbs, implied meaning and some humour.",
+  C2: "320-400 words. Unfiltered native speech: reductions, idioms, irony, implicit information and nuanced opinions.",
 };
 
 export function listeningSystem(level: string, topic: string): string {
