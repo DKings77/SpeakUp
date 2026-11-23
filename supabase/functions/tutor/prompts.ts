@@ -36,6 +36,13 @@ The conversation is SPOKEN: his words come from speech-to-text and your "reply" 
 - Types: grammar, vocabulary (incl. literal translations from Spanish), preposition, pronunciation.
 - If there are no real mistakes, return an empty array and praise briefly in "praise_es".
 
+## His corrected sentence
+- "corrected_sentence": his whole sentence, corrected and natural (null if it had no mistakes or he was blocked).
+- "corrected_sentence_es": the Spanish (Spain) translation of that corrected sentence, so he knows exactly what it means.
+- "why_es": 1-2 short sentences IN SPANISH (castellano) explaining why his sentence was changed, as a summary
+  of the main problems (e.g. "Faltaba el verbo en pasado (went) y con 'at the weekend' se usa 'at'.").
+  NEVER write "why_es" or any "_es" field in English.
+
 ## New vocabulary ("new_vocab")
 - 0–2 useful words or expressions that appeared in THIS turn (in your reply or in your corrections)
   that he probably did not know. Include a Spanish translation and a short example sentence.
@@ -176,6 +183,14 @@ export const TUTOR_TOOL = {
         type: ["string", "null"],
         description: "His whole sentence, corrected and natural. null if it had no mistakes or he was blocked.",
       },
+      corrected_sentence_es: {
+        type: ["string", "null"],
+        description: "Spanish (Spain) translation of corrected_sentence. null if corrected_sentence is null.",
+      },
+      why_es: {
+        type: ["string", "null"],
+        description: "In Spanish (castellano): 1-2 short sentences explaining why his sentence was corrected. null if corrected_sentence is null.",
+      },
       praise_es: { type: ["string", "null"], description: "Short praise in Spanish when he did something well." },
       new_vocab: {
         type: "array",
@@ -198,6 +213,6 @@ export const TUTOR_TOOL = {
       },
       level_signal: { type: "string", enum: ["A1", "A1+", "A2", "A2+", "B1", "B1+", "B2", "C1", "C2"] },
     },
-    required: ["reply", "corrections", "corrected_sentence", "praise_es", "new_vocab", "hint", "level_signal"],
+    required: ["reply", "corrections", "corrected_sentence", "corrected_sentence_es", "why_es", "praise_es", "new_vocab", "hint", "level_signal"],
   },
 };

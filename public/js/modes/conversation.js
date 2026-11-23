@@ -7,33 +7,50 @@ import { state, engine, ttsOpts, logToday } from "../state.js";
 import * as api from "../tutor.js";
 
 const MIN_HOLD_MS = 350;
+const HF_NO_SPEECH_MS = 15000; // manos libres: si no hablas en 15 s, se pausa
 
 const st = {
   sessionId: null, engine: "webspeech", listener: null,
   recording: false, busy: false, t0: 0, startedAt: 0, timer: null,
   turns: 0, corrections: [], vocab: [],
   hideText: localGet("hideTutorText") === "1",
+  // Manos libres
+  handsFree: localGet("handsFree") === "1",
+  paused: false, heard: false, lastChange: 0, lastLive: "", vadTimer: null, meter: null, emptyTries: 0,
 };
+
+/** Segundos de silencio para dar tu frase por terminada (Ajustes). */
+export const hfSilenceMs = () => Number(localGet("hfSilence")) || 2000;
 
 function localGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
 function localSet(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } }
 
 export function initConversation() {
   const btn = $("#btn-talk");
-  btn.addEventListener("pointerdown", (e) => { e.preventDefault(); btn.setPointerCapture?.(e.pointerId); beginRecording(); });
-  ["pointerup", "pointercancel"].forEach((ev) => btn.addEventListener(ev, () => finishRecording()));
+  btn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (st.handsFree) return handsFreeTap(); // manos libres: un toque = enviar ya / reanudar
+    btn.setPointerCapture?.(e.pointerId);
+    beginRecording();
+  });
+  ["pointerup", "pointercancel"].forEach((ev) => btn.addEventListener(ev, () => { if (!st.handsFree) finishRecording(); }));
   btn.addEventListener("contextmenu", (e) => e.preventDefault());
 
-  // Barra espaciadora en el PC = mantener pulsado
+  // Barra espaciadora en el PC = mantener pulsado (o tocar, en manos libres)
   const typing = () => ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName);
   document.addEventListener("keydown", (e) => {
     if (e.code !== "Space" || e.repeat || $("#screen-talk").hidden || typing()) return;
-    e.preventDefault(); beginRecording();
+    e.preventDefault();
+    if (st.handsFree) handsFreeTap(); else beginRecording();
   });
   document.addEventListener("keyup", (e) => {
     if (e.code !== "Space" || $("#screen-talk").hidden || typing()) return;
-    e.preventDefault(); finishRecording();
+    e.preventDefault();
+    if (!st.handsFree) finishRecording();
   });
+
+  $("#btn-handsfree").addEventListener("click", toggleHandsFree);
+  renderHandsFreeBtn();
 
   $("#btn-dontknow").addEventListener("click", () => sendTyped("no sé"));
   $("#btn-keyboard").addEventListener("click", () => {
@@ -84,6 +101,9 @@ export async function startConversation(mode, topic, label, focus = null) {
   } finally {
     setBusy(false);
   }
+  st.paused = false;
+  st.emptyTries = 0;
+  autoListen();
 }
 
 async function beginRecording() {
@@ -92,24 +112,28 @@ async function beginRecording() {
   st.recording = true;
   st.t0 = Date.now();
   $("#btn-talk").classList.add("recording");
-  status("🔴 Te escucho… suelta para enviar");
+  status(st.handsFree ? "🟢 Te escucho… habla cuando quieras" : "🔴 Te escucho… suelta para enviar");
   try {
     await st.listener.start();
+    if (st.handsFree && st.recording) startVad();
   } catch (e) {
     st.recording = false;
+    stopVad();
     $("#btn-talk").classList.remove("recording");
     status("");
     toast(e.name === "NotAllowedError" ? "Permite el micrófono para poder hablar" : e.message);
+    if (st.handsFree) pauseHandsFree();
   }
 }
 
 async function finishRecording() {
   if (!st.recording) return;
   st.recording = false;
+  stopVad();
   $("#btn-talk").classList.remove("recording");
   showLive("");
 
-  if (Date.now() - st.t0 < MIN_HOLD_MS) {
+  if (!st.handsFree && Date.now() - st.t0 < MIN_HOLD_MS) {
     st.listener.abort();
     status("Mantén pulsado el botón mientras hablas");
     return;
@@ -122,14 +146,14 @@ async function finishRecording() {
     if (st.engine === "whisper") {
       // Con Whisper enviamos el audio directamente: una sola llamada (transcribe + responde)
       const blob = await st.listener.stopRaw();
-      if (!blob || blob.size < 1500) { setBusy(false, "No te he oído. Prueba otra vez 🙂"); return; }
+      if (!blob || blob.size < 1500) return notHeard();
       userBubble = addUserBubble("…");
       res = await api.sendAudio(st.sessionId, blob);
-      if (res.empty) { userBubble.remove(); setBusy(false, "No te he oído. Prueba otra vez 🙂"); return; }
+      if (res.empty) { userBubble.remove(); return notHeard(); }
       userBubble.querySelector(".text").textContent = res.user_text;
     } else {
       const text = await st.listener.stop();
-      if (!text) { setBusy(false, "No te he oído. Prueba otra vez 🙂"); return; }
+      if (!text) return notHeard();
       userBubble = addUserBubble(text);
       res = await api.sendText(st.sessionId, text);
     }
@@ -138,11 +162,21 @@ async function finishRecording() {
     userBubble?.remove();
     toast(e.message);
     setBusy(false);
+    if (st.handsFree) pauseHandsFree("⏸ Ha habido un error · toca 🎤 para seguir");
   }
+}
+
+function notHeard() {
+  setBusy(false, "No te he oído. Prueba otra vez 🙂");
+  if (!st.handsFree) return;
+  st.emptyTries++;
+  if (st.emptyTries >= 2) pauseHandsFree();
+  else setTimeout(autoListen, 400);
 }
 
 async function sendTyped(text) {
   if (st.busy || !st.sessionId) return;
+  if (st.recording) { st.recording = false; stopVad(); st.listener.abort(); $("#btn-talk").classList.remove("recording"); showLive(""); }
   stopSpeaking();
   setBusy(true, "🤔 Pensando…");
   const userBubble = addUserBubble(text);
@@ -162,7 +196,9 @@ async function handleResult(res, userBubble) {
   if (res.corrected_sentence && userBubble) {
     const fixed = document.createElement("div");
     fixed.className = "fixed";
-    fixed.innerHTML = `✔ ${esc(res.corrected_sentence)} <button class="mini" aria-label="Escuchar">🔊</button>`;
+    fixed.innerHTML = `✔ ${esc(res.corrected_sentence)} <button class="mini" aria-label="Escuchar">🔊</button>
+      ${res.corrected_sentence_es ? `<div class="fixed-es">🇪🇸 ${esc(res.corrected_sentence_es)}</div>` : ""}
+      ${res.why_es ? `<div class="fixed-why">💬 ${esc(res.why_es)}</div>` : ""}`;
     fixed.querySelector("button").onclick = () => say(res.corrected_sentence);
     userBubble.appendChild(fixed);
   }
@@ -192,12 +228,102 @@ async function handleResult(res, userBubble) {
   st.busy = false;
   $("#btn-talk").classList.remove("busy");
   await say(res.reply);
-  if (!st.recording && !st.busy) status("Mantén pulsado para hablar");
+  st.emptyTries = 0;
+  if (st.handsFree) autoListen();
+  else if (!st.recording && !st.busy) status("Mantén pulsado para hablar");
+}
+
+// ---------------------------------------------------------------------
+// Manos libres: escucha sola cuando Sam termina, y envía al detectar silencio
+// ---------------------------------------------------------------------
+function autoListen() {
+  if (!st.handsFree || st.paused || !st.sessionId || st.busy || st.recording || $("#screen-talk").hidden) return;
+  beginRecording();
+}
+
+function handsFreeTap() {
+  if (!st.sessionId || st.busy) return;
+  if (st.recording) return finishRecording(); // enviar ya, sin esperar el silencio
+  stopSpeaking();
+  st.paused = false;
+  st.emptyTries = 0;
+  autoListen();
+}
+
+function pauseHandsFree(msg) {
+  if (st.recording) { st.recording = false; st.listener.abort(); $("#btn-talk").classList.remove("recording"); showLive(""); }
+  stopVad();
+  st.paused = true;
+  status(msg ?? "⏸ Manos libres en pausa · toca 🎤 para seguir");
+}
+
+function toggleHandsFree() {
+  st.handsFree = !st.handsFree;
+  localSet("handsFree", st.handsFree ? "1" : "0");
+  renderHandsFreeBtn();
+  if (st.handsFree) {
+    toast("Manos libres: habla cuando Sam termine. Envío tu frase tras una pausa.");
+    st.paused = false; st.emptyTries = 0;
+    autoListen();
+  } else {
+    if (st.recording) { st.recording = false; stopVad(); st.listener.abort(); $("#btn-talk").classList.remove("recording"); showLive(""); }
+    st.paused = false;
+    if (!st.busy) status("Mantén pulsado para hablar");
+  }
+}
+
+function renderHandsFreeBtn() {
+  const b = $("#btn-handsfree");
+  b.textContent = st.handsFree ? "🙌 Manos libres: ON" : "🙌 Manos libres: OFF";
+  b.classList.toggle("on", st.handsFree);
+  $("#btn-talk").setAttribute("aria-label", st.handsFree ? "Tocar para enviar o reanudar" : "Mantén pulsado para hablar");
+}
+
+function startVad() {
+  stopVad();
+  st.heard = false; st.lastLive = ""; st.lastChange = Date.now();
+  // Con Whisper no hay texto en directo: medimos el volumen del micro
+  st.meter = st.engine === "whisper" ? levelMeter(st.listener.rec?.stream) : null;
+  st.vadTimer = setInterval(vadTick, 200);
+}
+
+function stopVad() {
+  clearInterval(st.vadTimer);
+  st.vadTimer = null;
+  st.meter?.close();
+  st.meter = null;
+}
+
+function vadTick() {
+  if (!st.recording) return stopVad();
+  const now = Date.now();
+  if (st.meter && st.meter.level() > 0.04) { st.heard = true; st.lastChange = now; }
+  if (st.heard && now - st.lastChange > hfSilenceMs()) return finishRecording();
+  if (!st.heard && now - st.t0 > HF_NO_SPEECH_MS) pauseHandsFree("⏸ No te oigo · toca 🎤 cuando quieras seguir");
+}
+
+/** Nivel de volumen (0..1) de un stream de micro, con Web Audio. */
+function levelMeter(stream) {
+  if (!stream) return null;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = ctx.createMediaStreamSource(stream);
+    const an = ctx.createAnalyser();
+    an.fftSize = 1024;
+    src.connect(an);
+    const buf = new Float32Array(an.fftSize);
+    return {
+      level() { an.getFloatTimeDomainData(buf); let s = 0; for (const v of buf) s += v * v; return Math.sqrt(s / buf.length); },
+      close() { try { src.disconnect(); ctx.close(); } catch { /* ignore */ } },
+    };
+  } catch { return null; }
 }
 
 async function endConversation() {
   stopSpeaking();
   clearInterval(st.timer);
+  stopVad();
+  st.paused = false;
   if (st.recording) { st.recording = false; st.listener?.abort(); }
   releaseMic();
 
@@ -257,7 +383,13 @@ function setBusy(busy, msg) {
   status(msg ?? (busy ? "" : "Mantén pulsado para hablar"));
 }
 function status(msg) { $("#talk-status").textContent = msg; }
-function showLive(t) { const el = $("#live-text"); el.textContent = t; el.hidden = !t; }
+function showLive(t) {
+  const el = $("#live-text");
+  el.textContent = t;
+  el.hidden = !t;
+  // Manos libres: cada palabra nueva reinicia el contador de silencio
+  if (st.recording && t && t !== st.lastLive) { st.heard = true; st.lastChange = Date.now(); st.lastLive = t; }
+}
 function updateTimer() {
   const s = Math.floor((Date.now() - st.startedAt) / 1000);
   $("#talk-timer").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;

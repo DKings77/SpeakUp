@@ -157,6 +157,7 @@
   </header>
   <div id="chat" class="chat" aria-live="polite"></div>
   <footer class="talk-controls">
+    <div class="hf-row"><button class="hf-btn" id="btn-handsfree" type="button">🙌 Manos libres: OFF</button></div>
     <div id="live-text" class="live-text" hidden></div>
     <form id="type-form" class="type-form" hidden>
       <input id="type-input" type="text" placeholder="Escribe en inglés…" autocomplete="off">
@@ -219,6 +220,14 @@
         <option value="auto">Automático (iPhone nativo / navegador en PC)</option>
         <option value="webspeech">Navegador (gratis, Chrome/Edge)</option>
         <option value="whisper">Whisper (de pago, más literal)</option>
+      </select>
+    </label>
+    <label>Manos libres: enviar mi frase tras…
+      <select id="set-hfsilence">
+        <option value="1500">1,5 s de silencio (rápido)</option>
+        <option value="2000">2 s de silencio</option>
+        <option value="3000">3 s de silencio (pienso despacio)</option>
+        <option value="4000">4 s de silencio</option>
       </select>
     </label>
     <label>Español de apoyo

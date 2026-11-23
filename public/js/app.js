@@ -9,7 +9,7 @@ import { englishVoices, speak, unlockAudio, pickEngine, engineLabel, isNative } 
 import {
   state, loadProfile, updateProfile, loadUnitProgress, completedCount, nextUnit, getToday, ttsOpts,
 } from "./state.js";
-import { initConversation, startConversation } from "./modes/conversation.js";
+import { initConversation, startConversation, hfSilenceMs } from "./modes/conversation.js";
 import { startReview } from "./modes/review.js";
 import { initCourse, renderCourse, openLesson } from "./modes/course.js";
 import { initListening, renderListenHome } from "./modes/listening.js";
@@ -217,6 +217,7 @@ async function fillSettings() {
   $("#set-stt").value = p.stt_engine;
   $("#set-spanish").value = String(p.spanish_support);
   $("#set-glossary").value = (p.glossary ?? []).join(", ");
+  $("#set-hfsilence").value = String(hfSilenceMs());
   $("#settings-msg").hidden = true;
 
   const voices = await englishVoices();
@@ -235,6 +236,7 @@ function wireSettings() {
   });
   $("#settings-form").addEventListener("submit", async (e) => {
     e.preventDefault();
+    try { localStorage.setItem("hfSilence", $("#set-hfsilence").value); } catch { /* ignore */ }
     try {
       await updateProfile({
         level: $("#set-level").value,

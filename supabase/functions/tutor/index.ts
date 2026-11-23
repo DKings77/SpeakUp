@@ -200,6 +200,8 @@ async function tutorTurn(sb: SupabaseClient, profile: Any, mode: string, topic: 
     reply: String(out.reply ?? "Sorry, can you say that again?"),
     corrections: Array.isArray(out.corrections) ? out.corrections.slice(0, 3) : [],
     corrected_sentence: out.corrected_sentence ?? null,
+    corrected_sentence_es: out.corrected_sentence ? (out.corrected_sentence_es ?? null) : null,
+    why_es: out.corrected_sentence ? (out.why_es ?? null) : null,
     praise_es: out.praise_es ?? null,
     new_vocab: Array.isArray(out.new_vocab) ? out.new_vocab.slice(0, 2) : [],
     hint: out.hint && out.hint.model_sentence ? out.hint : null,

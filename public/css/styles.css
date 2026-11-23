@@ -271,3 +271,14 @@ input[type=range] { padding: 0; accent-color: var(--primary); }
 .spinner { width: 44px; height: 44px; border-radius: 50%; border: 4px solid var(--border); border-top-color: var(--primary); animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading p { color: var(--muted); max-width: 280px; }
+
+/* ============ v3 · Manos libres y porqué en castellano ============ */
+.hf-row { display: flex; justify-content: center; margin-bottom: 6px; }
+.hf-btn {
+  font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer;
+  padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--muted);
+}
+.hf-btn.on { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); }
+.bubble .fixed-es { margin-top: 4px; font-size: .88rem; opacity: .9; }
+.bubble .fixed-why { margin-top: 4px; font-size: .88rem; opacity: .9; font-style: italic; }
