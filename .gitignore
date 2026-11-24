@@ -7,3 +7,7 @@ Payload/
 *.ipa
 supabase/.temp/
 supabase/.branches/
+speakupapi.txt
+*.key
+SpeakUp-ipa/
+*.zip
